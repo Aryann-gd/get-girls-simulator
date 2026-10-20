@@ -1,0 +1,3 @@
+[submodule "Blender-mcp"]
+	path = Blender-mcp
+	url = https://github.com/Aryann-gd/Blender-mcp.git
