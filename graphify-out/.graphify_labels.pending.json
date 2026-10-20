@@ -4,7 +4,7 @@
   "2": "mcp_server.py",
   "3": "package.json",
   "4": "generate_all_assets.py",
-  "5": "UIManager",
+  "5": "EntityManager",
   "6": "Immutable Rules & Architectural Guidelines",
   "7": "vite-env.d.ts",
   "8": "assetgeneration.md",

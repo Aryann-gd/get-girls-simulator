@@ -2,108 +2,107 @@ import { IEconomyConfig, IPlayerState, IUpgrade } from '../types/game';
 
 export class EconomyManager {
   private config: IEconomyConfig = {
-    baseExponentialMultiplier: 1.15,
-    baseClickIncome: 5,
+    baseClickIncome: 1, // Balanced starting income: $1 per workout rep
     basePassiveIncomeInterval: 1.0,
-    energyRegenRate: 2.0,
-    energyCostPerClick: 3.0,
+    energyRegenRate: 1.2, // 1.2 energy per second
+    energyCostPerWorkout: 5.0, // 5 energy per rep
   };
 
   private upgrades: Map<string, IUpgrade> = new Map();
 
   constructor() {
-    this.initDefaultUpgrades();
+    this.initBalancedUpgrades();
   }
 
-  private initDefaultUpgrades(): void {
-    const defaultList: IUpgrade[] = [
+  private initBalancedUpgrades(): void {
+    const list: IUpgrade[] = [
       {
-        id: 'gym_pass',
-        name: 'Gym Membership',
+        id: 'gym_dumbbells',
+        name: 'Dumbbell Rack',
         category: 'fitness',
-        description: 'Pumps your biceps and boosts physical looks.',
-        baseCost: 25,
-        costMultiplier: 1.15,
+        description: 'Quality dumbbells for steady muscle definition.',
+        baseCost: 15,
+        costMultiplier: 1.25,
         level: 0,
-        maxLevel: 50,
+        maxLevel: 25,
         looksBonus: 2,
         rizzBonus: 0,
-        incomeBonus: 1,
+        incomeBonus: 1, // +$1/s passive
         icon: '🏋️',
       },
       {
-        id: 'protein_shake',
-        name: 'Whey Protein',
+        id: 'whey_protein',
+        name: 'Whey Protein Shake',
         category: 'fitness',
-        description: 'Maximizes workout gains and raises energy capacity.',
-        baseCost: 60,
-        costMultiplier: 1.16,
+        description: 'Improves muscle recovery and physical aura.',
+        baseCost: 35,
+        costMultiplier: 1.28,
         level: 0,
-        maxLevel: 30,
+        maxLevel: 20,
         looksBonus: 3,
         rizzBonus: 1,
-        incomeBonus: 2,
+        incomeBonus: 1,
         icon: '🥤',
       },
       {
-        id: 'designer_blazer',
-        name: 'Tailored Blazer',
+        id: 'designer_shirt',
+        name: 'Fitted Designer Shirt',
         category: 'fashion',
-        description: 'Look sharp and stylish like an elite tycoon.',
-        baseCost: 150,
-        costMultiplier: 1.18,
+        description: 'Tailored fit that accentuates your gains.',
+        baseCost: 75,
+        costMultiplier: 1.30,
         level: 0,
-        maxLevel: 25,
-        looksBonus: 5,
-        rizzBonus: 4,
-        incomeBonus: 5,
-        icon: '🧥',
+        maxLevel: 15,
+        looksBonus: 4,
+        rizzBonus: 3,
+        incomeBonus: 2,
+        icon: '👔',
       },
       {
         id: 'luxury_watch',
-        name: 'Gold Chronograph',
+        name: 'Steel Chronograph',
         category: 'fashion',
-        description: 'Exudes immense wealth and effortless charisma.',
-        baseCost: 400,
-        costMultiplier: 1.20,
+        description: 'A touch of class and confidence on your wrist.',
+        baseCost: 160,
+        costMultiplier: 1.32,
         level: 0,
-        maxLevel: 20,
-        looksBonus: 4,
-        rizzBonus: 8,
-        incomeBonus: 12,
+        maxLevel: 10,
+        looksBonus: 3,
+        rizzBonus: 6,
+        incomeBonus: 4,
         icon: '⌚',
       },
       {
-        id: 'seductive_cologne',
-        name: 'Oud Wood Cologne',
+        id: 'cologne',
+        name: 'Magnetic Cologne',
         category: 'charisma',
-        description: 'An irresistible scent that doubles your natural Rizz.',
-        baseCost: 200,
-        costMultiplier: 1.17,
+        description: 'A warm, sophisticated fragrance that girls notice immediately.',
+        baseCost: 280,
+        costMultiplier: 1.35,
         level: 0,
-        maxLevel: 30,
+        maxLevel: 10,
         looksBonus: 2,
-        rizzBonus: 7,
-        incomeBonus: 8,
+        rizzBonus: 8,
+        incomeBonus: 6,
         icon: '✨',
       },
       {
         id: 'sports_car',
-        name: 'Convertible Supercar',
+        name: 'Convertible Cruiser',
         category: 'lifestyle',
-        description: 'Turn heads everywhere you drive. Instant top-tier status.',
-        baseCost: 1200,
-        costMultiplier: 1.22,
+        description: 'The ultimate tycoon status symbol.',
+        baseCost: 650,
+        costMultiplier: 1.40,
         level: 0,
-        maxLevel: 15,
+        maxLevel: 5,
         looksBonus: 10,
-        rizzBonus: 15,
-        incomeBonus: 45,
+        rizzBonus: 12,
+        incomeBonus: 15,
         icon: '🏎️',
       },
     ];
 
-    for (const u of defaultList) {
+    for (const u of list) {
       this.upgrades.set(u.id, u);
     }
   }
@@ -134,7 +133,6 @@ export class EconomyManager {
     upgrade.level += 1;
     state.upgrades[upgradeId] = upgrade.level;
 
-    // Apply stat boosts
     state.looks = Math.min(100, state.looks + upgrade.looksBonus);
     state.rizz = Math.min(100, state.rizz + upgrade.rizzBonus);
 
@@ -146,26 +144,25 @@ export class EconomyManager {
     for (const upgrade of this.upgrades.values()) {
       totalPerSecond += upgrade.incomeBonus * upgrade.level;
     }
-    // Tycoon rank multiplier
-    const rankBonus = 1 + (state.level - 1) * 0.15;
+    const rankBonus = 1 + (state.level - 1) * 0.1;
     return Math.floor(totalPerSecond * rankBonus);
   }
 
   public performActiveWorkout(state: IPlayerState): { earnedCash: number; earnedLooks: number; success: boolean } {
-    if (state.energy < this.config.energyCostPerClick) {
+    if (state.energy < this.config.energyCostPerWorkout) {
       return { earnedCash: 0, earnedLooks: 0, success: false };
     }
 
-    state.energy = Math.max(0, state.energy - this.config.energyCostPerClick);
+    state.energy = Math.max(0, state.energy - this.config.energyCostPerWorkout);
 
-    // Cash earned scales with Looks and Rizz
-    const statMultiplier = 1 + (state.looks * 0.02) + (state.rizz * 0.03);
-    const earnedCash = Math.floor(this.config.baseClickIncome * statMultiplier);
+    // Workout cash income: starts at $1, gently increases by +$1 every 15 Looks
+    const statBonus = Math.floor(state.looks / 15);
+    const earnedCash = this.config.baseClickIncome + statBonus;
     state.cash += earnedCash;
 
-    // Small chance to increase looks directly from workout
+    // Small chance to directly gain +1 Looks from workout
     let earnedLooks = 0;
-    if (Math.random() < 0.25 && state.looks < 100) {
+    if (Math.random() < 0.20 && state.looks < 100) {
       earnedLooks = 1;
       state.looks = Math.min(100, state.looks + earnedLooks);
     }

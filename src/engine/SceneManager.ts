@@ -77,7 +77,7 @@ export class SceneManager {
     // 5. Managers
     this.resizeManager = new ResizeManager(this.camera, this.renderer, frustumSize);
     this.inputManager = new InputManager(this.camera, this.canvas);
-    this.entityManager = new EntityManager(this.scene, this.inputManager, this.gameManager);
+    this.entityManager = new EntityManager(this.scene, this.gameManager);
 
     // 6. Listen to Girl Attraction event to spawn new 3D entities
     this.gameManager.on('girl_attracted', () => {
@@ -95,6 +95,14 @@ export class SceneManager {
     const elapsed = this.clock.getElapsedTime();
 
     this.entityManager.update(delta, elapsed);
+
+    // Smooth camera tracking player in isometric space
+    const targetCamX = this.entityManager.playerPosition.x + 20;
+    const targetCamZ = this.entityManager.playerPosition.z + 20;
+    this.camera.position.x += (targetCamX - this.camera.position.x) * 0.08;
+    this.camera.position.z += (targetCamZ - this.camera.position.z) * 0.08;
+    this.camera.lookAt(this.entityManager.playerPosition.x, 0, this.entityManager.playerPosition.z);
+
     this.renderer.render(this.scene, this.camera);
   };
 

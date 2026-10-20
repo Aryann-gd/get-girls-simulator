@@ -1,17 +1,17 @@
 # Graph Report - TycoonDev  (2026-10-20)
 
 ## Corpus Check
-- 28 files · ~72,823 words
+- 29 files · ~73,800 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 6 file(s) not represented in the graph (top: (none) 4, .blend 1, .css 1)
 
 ## Summary
-- 256 nodes · 505 edges · 16 communities (12 shown, 4 thin omitted)
-- Extraction: 89% EXTRACTED · 11% INFERRED · 0% AMBIGUOUS · INFERRED: 55 edges (avg confidence: 0.87)
+- 269 nodes · 527 edges · 16 communities (12 shown, 4 thin omitted)
+- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 53 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1f5b8d4c`
+- Built from commit: `72818bb8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -21,7 +21,7 @@
 - mcp_server.py
 - package.json
 - generate_all_assets.py
-- UIManager
+- EntityManager
 - Immutable Rules & Architectural Guidelines
 - EntityManager
 - CrazyGamesManager.ts
@@ -32,27 +32,27 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `GameManager` - 33 edges
-2. `IPlayerState` - 20 edges
-3. `EntityManager` - 19 edges
+2. `EntityManager` - 25 edges
+3. `IPlayerState` - 20 edges
 4. `UIManager` - 19 edges
 5. `EconomyManager` - 17 edges
 6. `compilerOptions` - 15 edges
-7. `InputManager` - 14 edges
-8. `CrazyGamesManager` - 14 edges
-9. `SceneManager` - 13 edges
-10. `AttractionSystem` - 13 edges
+7. `CrazyGamesManager` - 14 edges
+8. `SceneManager` - 13 edges
+9. `AttractionSystem` - 13 edges
+10. `InputManager` - 11 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `EntityManager` --references--> `GameManager`  [EXTRACTED]
   src/engine/EntityManager.ts → src/systems/GameManager.ts
+- `EntityManager` --references--> `IZonePad`  [EXTRACTED]
+  src/engine/EntityManager.ts → src/types/game.ts
+- `SceneManager` --references--> `EntityManager`  [EXTRACTED]
+  src/engine/SceneManager.ts → src/engine/EntityManager.ts
 - `SceneManager` --references--> `GameManager`  [EXTRACTED]
   src/engine/SceneManager.ts → src/systems/GameManager.ts
 - `GameApplication` --references--> `SceneManager`  [EXTRACTED]
   src/main.ts → src/engine/SceneManager.ts
-- `GameApplication` --references--> `UIManager`  [EXTRACTED]
-  src/main.ts → src/ui/UIManager.ts
-- `CrazyGamesManager` --implements--> `ICrazyGamesSDK`  [EXTRACTED]
-  src/sdk/CrazyGamesManager.ts → src/types/game.ts
 
 ## Import Cycles
 - None detected.
@@ -60,8 +60,8 @@
 ## Communities (16 total, 4 thin omitted)
 
 ### Community 0 - "GameManager"
-Cohesion: 0.15
-Nodes (6): GameApplication, CrazyGamesManager, GameManager, GameEventListener, GameEventType, IFloatingTextItem
+Cohesion: 0.13
+Nodes (4): GameApplication, CrazyGamesManager, IFloatingTextItem, UIManager
 
 ### Community 1 - "compilerOptions"
 Cohesion: 0.12
@@ -84,16 +84,16 @@ Cohesion: 0.50
 Nodes (3): 1. CrazyGames Strict Compliance Rules, 2. Technical Stack, Immutable Rules & Architectural Guidelines
 
 ### Community 9 - "EntityManager"
-Cohesion: 0.12
-Nodes (7): three, dispose(), EntityManager, IInteractableEntity, InputManager, ResizeManager, SceneManager
+Cohesion: 0.14
+Nodes (6): three, dispose(), IInteractableEntity, InputManager, ResizeManager, SceneManager
 
 ### Community 10 - "CrazyGamesManager.ts"
 Cohesion: 0.13
 Nodes (3): happytime(), Window, ICrazyGamesSDK
 
 ### Community 11 - "IPlayerState"
-Cohesion: 0.11
-Nodes (8): AttractionSystem, EconomyManager, SaveSystem, IEconomyConfig, IGirlConfig, IPlayerState, IUpgrade, UpgradeCategory
+Cohesion: 0.10
+Nodes (13): ICashPickup, AttractionSystem, EconomyManager, GameManager, SaveSystem, GameEventListener, GameEventType, IEconomyConfig (+5 more)
 
 ### Community 12 - "Get Girls Simulator 🚀"
 Cohesion: 0.18
@@ -109,23 +109,23 @@ Nodes (4): Blender 3.1 MCP Project Instructions, Compatibility and safety, MCP c
 
 ## Knowledge Gaps
 - **2 isolated node(s):** `@types/three`, `typescript`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 83 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 86 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `GameManager` connect `GameManager` to `EntityManager`, `IPlayerState`, `UIManager`?**
-  _High betweenness centrality (0.136) - this node is a cross-community bridge._
+- **Why does `GameManager` connect `IPlayerState` to `GameManager`, `EntityManager`, `EntityManager`?**
+  _High betweenness centrality (0.144) - this node is a cross-community bridge._
 - **What connects `@types/three`, `typescript` to the rest of the system?**
   _2 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `GameManager` be split into smaller, more focused modules?**
+  _Cohesion score 0.1330049261083744 - nodes in this community are weakly interconnected._
+- **Why does `three` connect `EntityManager` to `IPlayerState`, `package.json`, `EntityManager`?**
+  _High betweenness centrality (0.079) - this node is a cross-community bridge._
 - **Should `compilerOptions` be split into smaller, more focused modules?**
   _Cohesion score 0.11764705882352941 - nodes in this community are weakly interconnected._
-- **Why does `three` connect `EntityManager` to `package.json`?**
-  _High betweenness centrality (0.079) - this node is a cross-community bridge._
+- **Why does `EntityManager` connect `EntityManager` to `EntityManager`, `IPlayerState`?**
+  _High betweenness centrality (0.068) - this node is a cross-community bridge._
 - **Should `mcp_server.py` be split into smaller, more focused modules?**
   _Cohesion score 0.09523809523809523 - nodes in this community are weakly interconnected._
-- **Why does `EntityManager` connect `EntityManager` to `GameManager`?**
-  _High betweenness centrality (0.042) - this node is a cross-community bridge._
-- **Should `package.json` be split into smaller, more focused modules?**
-  _Cohesion score 0.10526315789473684 - nodes in this community are weakly interconnected._

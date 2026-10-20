@@ -1,31 +1,48 @@
 import * as THREE from 'three';
-import { InputManager } from './InputManager';
 import { GameManager } from '../systems/GameManager';
-import { IGirlConfig } from '../types/game';
+import { IGirlConfig, IZonePad } from '../types/game';
+import { PlayerController } from './PlayerController';
+
+interface ICashPickup {
+  mesh: THREE.Mesh;
+  value: number;
+  position: THREE.Vector3;
+  spawnTime: number;
+}
 
 export class EntityManager {
   private scene: THREE.Scene;
-  private inputManager: InputManager;
   private gameManager: GameManager;
+  public playerController: PlayerController;
   private disposables: { dispose(): void }[] = [];
 
-  // Visual Entities
-  public playerMesh!: THREE.Group;
+  // Player Entity
+  public playerGroup!: THREE.Group;
+  public playerPosition: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
+  private walkCycleTime: number = 0;
+
+  // Stations & Zones
   public gymStation!: THREE.Group;
   public shopStation!: THREE.Group;
+  public vipBarStation!: THREE.Group;
   public girlEntities: Map<string, THREE.Group> = new Map();
 
-  // 3D Coin Object Pool (Pre-allocated, Zero runtime allocation!)
-  private coinPool: THREE.Mesh[] = [];
-  private activeCoins: { mesh: THREE.Mesh; life: number; velocity: THREE.Vector3 }[] = [];
+  // Interactive Zone Pads on the floor (Travel Center Tycoon Style)
+  public zonePads: Map<string, { pad: IZonePad; mesh: THREE.Group; progressMesh: THREE.Mesh }> = new Map();
+  private workoutTimer: number = 0;
+  private padPurchaseTimer: number = 0;
 
-  constructor(scene: THREE.Scene, inputManager: InputManager, gameManager: GameManager) {
+  // Floor Cash Pickups
+  private cashPickups: ICashPickup[] = [];
+  private cashPool: THREE.Mesh[] = [];
+
+  constructor(scene: THREE.Scene, gameManager: GameManager) {
     this.scene = scene;
-    this.inputManager = inputManager;
     this.gameManager = gameManager;
+    this.playerController = new PlayerController();
 
     this.buildWorld();
-    this.initCoinPool(25);
+    this.initCashPool(40);
   }
 
   private registerDisposable(res: { dispose(): void }): void {
@@ -33,12 +50,12 @@ export class EntityManager {
   }
 
   private buildWorld(): void {
-    // 1. Stylized Isometric Tycoon Stage / Dance Floor
-    const floorGeo = new THREE.CylinderGeometry(8, 8.5, 0.6, 32);
+    // 1. Stylized Isometric Dance Floor & Club Stage
+    const floorGeo = new THREE.CylinderGeometry(8.5, 9.0, 0.6, 36);
     const floorMat = new THREE.MeshStandardMaterial({
-      color: 0x1a1528,
-      roughness: 0.3,
-      metalness: 0.4,
+      color: 0x161124,
+      roughness: 0.35,
+      metalness: 0.25,
     });
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.position.y = -0.3;
@@ -47,10 +64,10 @@ export class EntityManager {
     this.registerDisposable(floorGeo);
     this.registerDisposable(floorMat);
 
-    // Stage Trim Ring
-    const ringGeo = new THREE.TorusGeometry(8.2, 0.12, 16, 64);
+    // Glowing Neon Stage Rim
+    const ringGeo = new THREE.TorusGeometry(8.7, 0.12, 16, 64);
     const ringMat = new THREE.MeshStandardMaterial({
-      color: 0xff007f, // Neon magenta rim
+      color: 0xff007f,
       emissive: 0xaa0055,
       roughness: 0.2,
       metalness: 0.8,
@@ -62,76 +79,129 @@ export class EntityManager {
     this.registerDisposable(ringGeo);
     this.registerDisposable(ringMat);
 
-    // 2. Central Player Character
-    this.playerMesh = this.createPlayerEntity();
-    this.playerMesh.position.set(0, 0, 0);
-    this.scene.add(this.playerMesh);
+    // 2. Player Character
+    this.playerGroup = this.createPlayerEntity();
+    this.playerGroup.position.copy(this.playerPosition);
+    this.scene.add(this.playerGroup);
 
-    // 3. Gym Bench Station (Workout Click Target)
+    // 3. Build Stations
     this.gymStation = this.createGymStation();
-    this.gymStation.position.set(-3.2, 0, -1.0);
+    this.gymStation.position.set(-3.5, 0, -1.5);
     this.gymStation.rotation.y = Math.PI / 4;
     this.scene.add(this.gymStation);
-    this.inputManager.registerInteractable({
-      object: this.gymStation,
-      id: 'gym_bench',
-      name: 'Gym Bench',
-      type: 'workout',
-      onClick: (screenX, screenY) => {
-        const res = this.gameManager.workout();
-        if (res.success) {
-          this.spawnCoin(this.gymStation.position);
-          window.dispatchEvent(
-            new CustomEvent('spawn_floating_text', {
-              detail: { text: `+$${res.earnedCash}`, x: screenX, y: screenY, color: '#ffb703' },
-            })
-          );
-          if (res.earnedLooks > 0) {
-            window.dispatchEvent(
-              new CustomEvent('spawn_floating_text', {
-                detail: { text: `+${res.earnedLooks} Looks! 💪`, x: screenX, y: screenY - 25, color: '#00f0ff' },
-              })
-            );
-          }
-        } else {
-          window.dispatchEvent(
-            new CustomEvent('spawn_floating_text', {
-              detail: { text: 'Low Energy! ⚡', x: screenX, y: screenY, color: '#ff4d4d' },
-            })
-          );
-        }
-      },
-    });
 
-    // 4. Wardrobe & Clothing Rack Station (Shop Click Target)
     this.shopStation = this.createShopStation();
-    this.shopStation.position.set(3.2, 0, -1.0);
+    this.shopStation.position.set(3.5, 0, -1.5);
     this.shopStation.rotation.y = -Math.PI / 4;
     this.scene.add(this.shopStation);
-    this.inputManager.registerInteractable({
-      object: this.shopStation,
-      id: 'wardrobe_shop',
-      name: 'Designer Boutique',
-      type: 'shop',
-      onClick: () => {
-        window.dispatchEvent(new CustomEvent('open_shop_modal'));
-      },
-    });
 
-    // 5. Initial Girl NPCs Check
+    this.vipBarStation = this.createVIPBarStation();
+    this.vipBarStation.position.set(0, 0, -4.5);
+    this.scene.add(this.vipBarStation);
+
+    // 4. Build Floor Zone Pads (Travel Center Tycoon Style)
+    this.initZonePads();
+
+    // 5. Initial Girls Check
     this.syncGirlEntities();
+  }
+
+  private initZonePads(): void {
+    const padsConfig: IZonePad[] = [
+      {
+        id: 'pad_workout',
+        name: 'Workout Zone',
+        type: 'workout',
+        position: [-3.5, 0.02, -0.2],
+        radius: 1.2,
+        cost: 0,
+        currentPaid: 0,
+        unlocked: true,
+        color: 0xffb703, // Amber Gold
+        label: '🏋️ STAND TO WORKOUT',
+      },
+      {
+        id: 'pad_wardrobe',
+        name: 'Designer Boutique',
+        type: 'upgrade',
+        position: [3.5, 0.02, -0.2],
+        radius: 1.2,
+        cost: 0,
+        currentPaid: 0,
+        unlocked: true,
+        color: 0x00f0ff, // Cyan
+        label: '👔 BOUTIQUE SHOP',
+      },
+      {
+        id: 'pad_vip_bar',
+        name: 'VIP Drink Bar',
+        type: 'upgrade',
+        position: [0, 0.02, -3.2],
+        radius: 1.3,
+        cost: 50,
+        currentPaid: 0,
+        unlocked: this.gameManager.state.unlockedZones.includes('zone_vip_bar'),
+        color: 0x9b5de5, // Purple
+        label: '$50 VIP BAR',
+        targetUpgradeId: 'designer_shirt',
+      },
+    ];
+
+    for (const pad of padsConfig) {
+      const padGroup = new THREE.Group();
+      padGroup.position.set(...pad.position);
+
+      // Outer Ring
+      const ringGeo = new THREE.RingGeometry(pad.radius * 0.85, pad.radius, 32);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: pad.color,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.8,
+      });
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.rotation.x = -Math.PI / 2;
+      padGroup.add(ringMesh);
+      this.registerDisposable(ringGeo);
+      this.registerDisposable(ringMat);
+
+      // Inner Fill Disc
+      const discGeo = new THREE.CircleGeometry(pad.radius * 0.82, 32);
+      const discMat = new THREE.MeshBasicMaterial({
+        color: pad.color,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.25,
+      });
+      const discMesh = new THREE.Mesh(discGeo, discMat);
+      discMesh.rotation.x = -Math.PI / 2;
+      padGroup.add(discMesh);
+      this.registerDisposable(discGeo);
+      this.registerDisposable(discMat);
+
+      // Progress Arc / Indicator
+      const progressGeo = new THREE.RingGeometry(pad.radius * 0.75, pad.radius * 0.84, 32, 1, 0, 0);
+      const progressMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        side: THREE.DoubleSide,
+      });
+      const progressMesh = new THREE.Mesh(progressGeo, progressMat);
+      progressMesh.rotation.x = -Math.PI / 2;
+      padGroup.add(progressMesh);
+      this.registerDisposable(progressGeo);
+      this.registerDisposable(progressMat);
+
+      this.scene.add(padGroup);
+      this.zonePads.set(pad.id, { pad, mesh: padGroup, progressMesh });
+    }
   }
 
   private createPlayerEntity(): THREE.Group {
     const group = new THREE.Group();
 
-    // Body Capsule (Stylized Tycoon Suit)
-    const bodyGeo = new THREE.CapsuleGeometry(0.35, 0.7, 16, 24);
-    const suitMat = new THREE.MeshStandardMaterial({
-      color: 0x12613d, // Tycoon Green Suit
-      roughness: 0.35,
-      metalness: 0.2,
-    });
+    // Body
+    const bodyGeo = new THREE.CapsuleGeometry(0.35, 0.7, 16, 20);
+    const suitMat = new THREE.MeshStandardMaterial({ color: 0x12613d, roughness: 0.35, metalness: 0.2 });
     const body = new THREE.Mesh(bodyGeo, suitMat);
     body.position.y = 1.0;
     body.castShadow = true;
@@ -148,7 +218,7 @@ export class EntityManager {
     this.registerDisposable(shirtGeo);
     this.registerDisposable(shirtMat);
 
-    // Stylized Head
+    // Head
     const headGeo = new THREE.SphereGeometry(0.3, 24, 20);
     const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdfc4, roughness: 0.45 });
     const head = new THREE.Mesh(headGeo, skinMat);
@@ -158,7 +228,7 @@ export class EntityManager {
     this.registerDisposable(headGeo);
     this.registerDisposable(skinMat);
 
-    // Stylized Hair
+    // Hair
     const hairGeo = new THREE.SphereGeometry(0.32, 24, 20);
     const hairMat = new THREE.MeshStandardMaterial({ color: 0x221f1d, roughness: 0.4 });
     const hair = new THREE.Mesh(hairGeo, hairMat);
@@ -167,16 +237,6 @@ export class EntityManager {
     group.add(hair);
     this.registerDisposable(hairGeo);
     this.registerDisposable(hairMat);
-
-    // Pedestal Base
-    const pedGeo = new THREE.CylinderGeometry(1.0, 1.1, 0.3, 24);
-    const pedMat = new THREE.MeshStandardMaterial({ color: 0x2d1f4d, roughness: 0.3, metalness: 0.5 });
-    const pedestal = new THREE.Mesh(pedGeo, pedMat);
-    pedestal.position.y = 0.15;
-    pedestal.receiveShadow = true;
-    group.add(pedestal);
-    this.registerDisposable(pedGeo);
-    this.registerDisposable(pedMat);
 
     return group;
   }
@@ -194,7 +254,7 @@ export class EntityManager {
     this.registerDisposable(benchGeo);
     this.registerDisposable(benchMat);
 
-    // Metal Frame
+    // Frame
     const frameGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.5, 12);
     const metalMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8, roughness: 0.2 });
     for (const x of [-0.6, 0.6]) {
@@ -208,7 +268,7 @@ export class EntityManager {
     this.registerDisposable(frameGeo);
     this.registerDisposable(metalMat);
 
-    // Barbell & Weights
+    // Barbell
     const barGeo = new THREE.CylinderGeometry(0.03, 0.03, 1.8, 12);
     const bar = new THREE.Mesh(barGeo, metalMat);
     bar.rotation.z = Math.PI / 2;
@@ -228,27 +288,12 @@ export class EntityManager {
     this.registerDisposable(plateGeo);
     this.registerDisposable(plateMat);
 
-    // Floating Icon indicator
-    const iconGeo = new THREE.SphereGeometry(0.25, 16, 16);
-    const iconMat = new THREE.MeshStandardMaterial({
-      color: 0xffb703,
-      emissive: 0xff9900,
-      roughness: 0.2,
-      metalness: 0.5,
-    });
-    const icon = new THREE.Mesh(iconGeo, iconMat);
-    icon.position.set(0, 1.6, 0);
-    group.add(icon);
-    this.registerDisposable(iconGeo);
-    this.registerDisposable(iconMat);
-
     return group;
   }
 
   private createShopStation(): THREE.Group {
     const group = new THREE.Group();
 
-    // Wooden Base
     const baseGeo = new THREE.BoxGeometry(1.6, 0.15, 0.6);
     const baseMat = new THREE.MeshStandardMaterial({ color: 0x4a2810, roughness: 0.4 });
     const base = new THREE.Mesh(baseGeo, baseMat);
@@ -257,7 +302,6 @@ export class EntityManager {
     this.registerDisposable(baseGeo);
     this.registerDisposable(baseMat);
 
-    // Gold Metal Rack
     const postGeo = new THREE.CylinderGeometry(0.035, 0.035, 1.6, 12);
     const goldMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.2 });
     for (const x of [-0.65, 0.65]) {
@@ -275,7 +319,6 @@ export class EntityManager {
     group.add(topBar);
     this.registerDisposable(topBarGeo);
 
-    // Hanging Colorful Clothes
     const colors = [0xff2a85, 0x00f0ff, 0x9b5de5];
     const clothGeo = new THREE.BoxGeometry(0.3, 0.65, 0.15);
     colors.forEach((col, i) => {
@@ -291,6 +334,31 @@ export class EntityManager {
     return group;
   }
 
+  private createVIPBarStation(): THREE.Group {
+    const group = new THREE.Group();
+
+    // Bar Counter
+    const counterGeo = new THREE.BoxGeometry(3.0, 1.1, 0.8);
+    const counterMat = new THREE.MeshStandardMaterial({ color: 0x22133e, roughness: 0.3, metalness: 0.4 });
+    const counter = new THREE.Mesh(counterGeo, counterMat);
+    counter.position.set(0, 0.55, 0);
+    counter.castShadow = true;
+    group.add(counter);
+    this.registerDisposable(counterGeo);
+    this.registerDisposable(counterMat);
+
+    // Glowing Bar Top
+    const topGeo = new THREE.BoxGeometry(3.2, 0.08, 0.9);
+    const topMat = new THREE.MeshStandardMaterial({ color: 0x9b5de5, emissive: 0x4a148c, roughness: 0.2 });
+    const top = new THREE.Mesh(topGeo, topMat);
+    top.position.set(0, 1.14, 0);
+    group.add(top);
+    this.registerDisposable(topGeo);
+    this.registerDisposable(topMat);
+
+    return group;
+  }
+
   public syncGirlEntities(): void {
     const allGirls = this.gameManager.attraction.getAllGirls();
     for (const girl of allGirls) {
@@ -299,35 +367,6 @@ export class EntityManager {
         entity.position.set(...girl.position);
         this.scene.add(entity);
         this.girlEntities.set(girl.id, entity);
-
-        // Register interaction
-        this.inputManager.registerInteractable({
-          object: entity,
-          id: girl.id,
-          name: girl.name,
-          type: 'girl',
-          onClick: (screenX, screenY) => {
-            const flirt = this.gameManager.flirtWithGirl(girl.id);
-            this.spawnCoin(entity.position);
-            window.dispatchEvent(
-              new CustomEvent('spawn_floating_text', {
-                detail: {
-                  text: `${girl.name}: "${flirt.dialogue}"`,
-                  x: screenX,
-                  y: screenY - 30,
-                  color: girl.avatarColor,
-                },
-              })
-            );
-            if (flirt.affectionReward > 0) {
-              window.dispatchEvent(
-                new CustomEvent('spawn_floating_text', {
-                  detail: { text: `+${flirt.affectionReward} Affection Cash! ❤️`, x: screenX, y: screenY, color: '#ff2a85' },
-                })
-              );
-            }
-          },
-        });
       }
     }
   }
@@ -335,7 +374,6 @@ export class EntityManager {
   private createGirlEntity(config: IGirlConfig): THREE.Group {
     const group = new THREE.Group();
 
-    // Stylized Dress / Body
     const bodyGeo = new THREE.CapsuleGeometry(0.28, 0.6, 16, 20);
     const dressMat = new THREE.MeshStandardMaterial({
       color: new THREE.Color(config.avatarColor),
@@ -349,7 +387,6 @@ export class EntityManager {
     this.registerDisposable(bodyGeo);
     this.registerDisposable(dressMat);
 
-    // Head
     const headGeo = new THREE.SphereGeometry(0.26, 24, 20);
     const skinMat = new THREE.MeshStandardMaterial({ color: 0xffe0bd, roughness: 0.45 });
     const head = new THREE.Mesh(headGeo, skinMat);
@@ -359,7 +396,6 @@ export class EntityManager {
     this.registerDisposable(headGeo);
     this.registerDisposable(skinMat);
 
-    // Hair Ponytail / Bob
     const hairGeo = new THREE.SphereGeometry(0.28, 20, 18);
     const hairMat = new THREE.MeshStandardMaterial({ color: 0x4a2810, roughness: 0.4 });
     const hair = new THREE.Mesh(hairGeo, hairMat);
@@ -368,7 +404,7 @@ export class EntityManager {
     this.registerDisposable(hairGeo);
     this.registerDisposable(hairMat);
 
-    // Floating Love Heart indicator
+    // Floating Love Heart
     const heartGeo = new THREE.OctahedronGeometry(0.2, 0);
     const heartMat = new THREE.MeshStandardMaterial({
       color: 0xff0055,
@@ -386,13 +422,13 @@ export class EntityManager {
     return group;
   }
 
-  private initCoinPool(size: number): void {
-    const coinGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.04, 16);
+  private initCashPool(size: number): void {
+    const coinGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.05, 16);
     const coinMat = new THREE.MeshStandardMaterial({
-      color: 0xffd700,
-      emissive: 0x997700,
-      metalness: 0.9,
-      roughness: 0.2,
+      color: 0xffb703,
+      metalness: 0.8,
+      roughness: 0.25,
+      emissive: 0x664400,
     });
     this.registerDisposable(coinGeo);
     this.registerDisposable(coinMat);
@@ -401,71 +437,197 @@ export class EntityManager {
       const coin = new THREE.Mesh(coinGeo, coinMat);
       coin.visible = false;
       this.scene.add(coin);
-      this.coinPool.push(coin);
+      this.cashPool.push(coin);
     }
   }
 
-  public spawnCoin(origin: THREE.Vector3): void {
-    const coin = this.coinPool.pop();
+  public dropCashOnFloor(origin: THREE.Vector3, value: number = 1): void {
+    const coin = this.cashPool.pop();
     if (!coin) return;
 
-    coin.position.copy(origin).add(new THREE.Vector3((Math.random() - 0.5) * 0.4, 1.2, (Math.random() - 0.5) * 0.4));
+    const offset = new THREE.Vector3((Math.random() - 0.5) * 1.0, 0.05, (Math.random() - 0.5) * 1.0);
+    const pos = origin.clone().add(offset);
+    pos.y = 0.05;
+
+    coin.position.copy(pos);
     coin.visible = true;
-    this.activeCoins.push({
+    this.cashPickups.push({
       mesh: coin,
-      life: 0,
-      velocity: new THREE.Vector3((Math.random() - 0.5) * 1.5, 3.0 + Math.random() * 1.5, (Math.random() - 0.5) * 1.5),
+      value,
+      position: pos,
+      spawnTime: performance.now(),
     });
   }
 
   public update(delta: number, elapsed: number): void {
-    // 1. Idle Bobbing on Player
-    if (this.playerMesh) {
-      this.playerMesh.position.y = Math.sin(elapsed * 2.5) * 0.04;
+    // 1. Update Player Movement (Keyboard or Virtual Touch Joystick)
+    const moveInput = this.playerController.update();
+
+    if (moveInput.lengthSq() > 0) {
+      // Map 2D isometric camera angle (45-degree rotation)
+      const cos45 = 0.7071;
+      const sin45 = 0.7071;
+      const worldDx = (moveInput.x * cos45 + moveInput.y * sin45) * this.playerController.speed * delta;
+      const worldDz = (-moveInput.x * sin45 + moveInput.y * cos45) * this.playerController.speed * delta;
+
+      this.playerPosition.x += worldDx;
+      this.playerPosition.z += worldDz;
+
+      // Clamp player within the dance floor radius (7.5 units)
+      const distFromCenter = Math.sqrt(this.playerPosition.x * this.playerPosition.x + this.playerPosition.z * this.playerPosition.z);
+      if (distFromCenter > 7.5) {
+        this.playerPosition.normalize().multiplyScalar(7.5);
+      }
+
+      this.playerGroup.position.x = this.playerPosition.x;
+      this.playerGroup.position.z = this.playerPosition.z;
+
+      // Face direction of movement
+      const angle = Math.atan2(worldDx, worldDz);
+      this.playerGroup.rotation.y = angle;
+
+      // Procedural walking bounce
+      this.walkCycleTime += delta * 12.0;
+      this.playerGroup.position.y = Math.abs(Math.sin(this.walkCycleTime)) * 0.12;
+    } else {
+      // Idle breathing
+      this.playerGroup.position.y = Math.sin(elapsed * 2.5) * 0.03;
     }
 
-    // 2. Idle Sway on Girls
-    for (const [_, girlGroup] of this.girlEntities) {
-      girlGroup.rotation.y += delta * 0.5;
+    // 2. Zone Pads Interaction (Walking onto pads like Travel Center Tycoon)
+    this.updateZoneInteractions(delta);
+
+    // 3. Cash Pickups Suction & Collection
+    this.updateCashPickups(delta);
+
+    // 4. Girls Idle & Proximity Hearts
+    this.updateGirls(delta, elapsed);
+  }
+
+  private updateZoneInteractions(delta: number): void {
+    for (const [id, item] of this.zonePads) {
+      const padPos = item.mesh.position;
+      const dist = this.playerPosition.distanceTo(padPos);
+
+      // Pulsing pad ring animation
+      item.mesh.children[0].scale.setScalar(1.0 + Math.sin(performance.now() * 0.005) * 0.04);
+
+      if (dist < item.pad.radius) {
+        // Player is inside the pad!
+        if (id === 'pad_workout') {
+          this.workoutTimer += delta;
+          if (this.workoutTimer >= 0.75) {
+            this.workoutTimer = 0;
+            const res = this.gameManager.workout();
+            if (res.success) {
+              this.dropCashOnFloor(this.gymStation.position, res.earnedCash);
+              window.dispatchEvent(
+                new CustomEvent('spawn_floating_text', {
+                  detail: { text: `+$${res.earnedCash}`, x: window.innerWidth / 2, y: window.innerHeight / 2, color: '#ffb703' },
+                })
+              );
+            }
+          }
+        } else if (id === 'pad_wardrobe') {
+          // Open shop modal automatically when standing on wardrobe pad
+          this.padPurchaseTimer += delta;
+          if (this.padPurchaseTimer >= 0.6) {
+            this.padPurchaseTimer = -2.0; // Cooldown before reopening
+            window.dispatchEvent(new CustomEvent('open_shop_modal'));
+          }
+        } else if (id === 'pad_vip_bar') {
+          // Continuous money draining into pad until built!
+          if (!item.pad.unlocked && this.gameManager.state.cash > 0) {
+            this.padPurchaseTimer += delta;
+            if (this.padPurchaseTimer >= 0.12) {
+              this.padPurchaseTimer = 0;
+              const spend = Math.min(2, this.gameManager.state.cash);
+              this.gameManager.state.cash -= spend;
+              item.pad.currentPaid += spend;
+
+              // Check if completed
+              if (item.pad.currentPaid >= item.pad.cost) {
+                item.pad.unlocked = true;
+                this.gameManager.state.unlockedZones.push('zone_vip_bar');
+                this.gameManager.state.looks += 5;
+                this.gameManager.state.rizz += 5;
+                window.dispatchEvent(
+                  new CustomEvent('spawn_floating_text', {
+                    detail: { text: '🎉 VIP Bar Unlocked! (+5 Looks, +5 Rizz)', x: window.innerWidth / 2, y: window.innerHeight / 2 - 40, color: '#00f0ff' },
+                  })
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private updateCashPickups(delta: number): void {
+    const pickupRadius = 1.6;
+    for (let i = this.cashPickups.length - 1; i >= 0; i--) {
+      const item = this.cashPickups[i];
+      const dist = this.playerPosition.distanceTo(item.position);
+
+      item.mesh.rotation.y += delta * 4.0;
+
+      if (dist < pickupRadius) {
+        // Suction towards player
+        item.mesh.position.lerp(this.playerGroup.position, delta * 12.0);
+
+        if (dist < 0.4) {
+          // Collected!
+          item.mesh.visible = false;
+          this.cashPool.push(item.mesh);
+          this.cashPickups.splice(i, 1);
+
+          this.gameManager.state.cash += item.value;
+          window.dispatchEvent(
+            new CustomEvent('spawn_floating_text', {
+              detail: { text: `+$${item.value}`, x: window.innerWidth / 2, y: window.innerHeight / 2, color: '#ffb703' },
+            })
+          );
+        }
+      }
+    }
+  }
+
+  private updateGirls(delta: number, elapsed: number): void {
+    for (const [girlId, girlGroup] of this.girlEntities) {
+      girlGroup.rotation.y += delta * 0.3;
       const heart = girlGroup.children[3];
       if (heart) {
         heart.rotation.y += delta * 2.0;
         heart.position.y = 2.1 + Math.sin(elapsed * 4.0) * 0.08;
       }
-    }
 
-    // 3. Update 3D Coin Pool Particles
-    for (let i = this.activeCoins.length - 1; i >= 0; i--) {
-      const item = this.activeCoins[i];
-      item.life += delta;
-      item.velocity.y -= 9.8 * delta; // Gravity
-      item.mesh.position.addScaledVector(item.velocity, delta);
-      item.mesh.rotation.y += delta * 10.0;
-      item.mesh.rotation.x += delta * 5.0;
-
-      if (item.life > 0.8 || item.mesh.position.y < 0) {
-        item.mesh.visible = false;
-        this.coinPool.push(item.mesh);
-        this.activeCoins.splice(i, 1);
+      // Check proximity for auto-flirt / affection
+      const dist = this.playerPosition.distanceTo(girlGroup.position);
+      if (dist < 1.8) {
+        if (Math.random() < 0.02) {
+          const flirt = this.gameManager.flirtWithGirl(girlId);
+          this.dropCashOnFloor(girlGroup.position, flirt.affectionReward);
+          window.dispatchEvent(
+            new CustomEvent('spawn_floating_text', {
+              detail: { text: `❤️ ${flirt.dialogue}`, x: window.innerWidth / 2, y: window.innerHeight / 3, color: '#ff2a85' },
+            })
+          );
+        }
       }
     }
   }
 
   public dispose(): void {
-    // Clean all registered interactables
-    this.inputManager.unregisterInteractable(this.gymStation);
-    this.inputManager.unregisterInteractable(this.shopStation);
-    for (const entity of this.girlEntities.values()) {
-      this.inputManager.unregisterInteractable(entity);
-    }
+    this.zonePads.clear();
     this.girlEntities.clear();
+    this.cashPickups = [];
 
-    // Dispose all tracked geometries and materials
     for (const res of this.disposables) {
       try {
         res.dispose();
       } catch (err) {
-        console.warn('Error disposing 3D resource:', err);
+        console.warn('Error disposing resource:', err);
       }
     }
     this.disposables = [];

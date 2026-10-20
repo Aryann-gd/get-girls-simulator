@@ -13,6 +13,7 @@ export interface IPlayerState {
   lastSavedTimestamp: number;
   upgrades: Record<string, number>; // upgradeId -> level
   unlockedGirls: string[];          // list of attracted girl IDs
+  unlockedZones: string[];          // list of unlocked zone IDs
 }
 
 export type UpgradeCategory = 'fitness' | 'fashion' | 'lifestyle' | 'charisma';
@@ -23,22 +24,34 @@ export interface IUpgrade {
   category: UpgradeCategory;
   description: string;
   baseCost: number;
-  costMultiplier: number; // typically 1.15
+  costMultiplier: number;
   level: number;
   maxLevel: number;
   looksBonus: number;
   rizzBonus: number;
   incomeBonus: number; // passive cash per second
-  energyCostReduction?: number;
   icon: string;
 }
 
+export interface IZonePad {
+  id: string;
+  name: string;
+  type: 'workout' | 'upgrade' | 'girl_attract' | 'cash_collect';
+  position: [number, number, number];
+  radius: number;
+  cost: number;
+  currentPaid: number;
+  unlocked: boolean;
+  color: number;
+  label: string;
+  targetUpgradeId?: string;
+}
+
 export interface IEconomyConfig {
-  baseExponentialMultiplier: number; // 1.15
   baseClickIncome: number;
   basePassiveIncomeInterval: number; // in seconds
   energyRegenRate: number;           // energy per second
-  energyCostPerClick: number;
+  energyCostPerWorkout: number;
 }
 
 export interface IGirlConfig {
@@ -70,6 +83,7 @@ export type GameEventType =
   | 'energy_changed'
   | 'upgrade_purchased'
   | 'girl_attracted'
+  | 'zone_unlocked'
   | 'game_saved'
   | 'ad_reward_granted';
 

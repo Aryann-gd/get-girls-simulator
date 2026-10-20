@@ -42,9 +42,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1792508699.5786436,
-    "seen": 1792509659.1949842,
-    "ast_hash": "fcee5f60741c911f516aa56a2683b087",
+    "mtime": 1792511234.3601327,
+    "seen": 1792511435.2043843,
+    "ast_hash": "1c5d04d4d9466fa8bed9f11438a87ae5",
     "semantic_hash": ""
   },
   "mechanics.md": {
@@ -90,9 +90,9 @@
     "semantic_hash": ""
   },
   "src/engine/EntityManager.ts": {
-    "mtime": 1792508578.6590564,
-    "seen": 1792509659.1929843,
-    "ast_hash": "6e2cd8231a2cc203547b8ae556145daa",
+    "mtime": 1792511111.5763454,
+    "seen": 1792511435.2043843,
+    "ast_hash": "17c6708b1b7efac20eb9c5071156737e",
     "semantic_hash": ""
   },
   "src/engine/InputManager.ts": {
@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "src/engine/SceneManager.ts": {
-    "mtime": 1792508608.7893243,
-    "seen": 1792509659.1929843,
-    "ast_hash": "3a65fd48bf2b00bce8e9db95d73233ed",
+    "mtime": 1792511177.7285686,
+    "seen": 1792511435.2043843,
+    "ast_hash": "561230377ff7d5ba5dd44d7043071774",
     "semantic_hash": ""
   },
   "src/sdk/CrazyGamesManager.ts": {
@@ -126,9 +126,9 @@
     "semantic_hash": ""
   },
   "src/systems/EconomyManager.ts": {
-    "mtime": 1792508396.5099506,
-    "seen": 1792509659.1929843,
-    "ast_hash": "7090be00af3b2770077c8887b111f130",
+    "mtime": 1792511361.9788775,
+    "seen": 1792511435.2043843,
+    "ast_hash": "bea0a6af5a45a5b3f5d3e9f3c5933bea",
     "semantic_hash": ""
   },
   "src/systems/GameManager.ts": {
@@ -138,15 +138,15 @@
     "semantic_hash": ""
   },
   "src/systems/SaveSystem.ts": {
-    "mtime": 1792508437.369558,
-    "seen": 1792509659.1929843,
-    "ast_hash": "110f87564dbeeee6ff6b8bc5f030a4bd",
+    "mtime": 1792511036.433965,
+    "seen": 1792511435.2043843,
+    "ast_hash": "c1cc4cdc75bab0c0f3c2bfe1d1d053b2",
     "semantic_hash": ""
   },
   "src/types/game.ts": {
-    "mtime": 1792508361.070127,
-    "seen": 1792509659.1929843,
-    "ast_hash": "af1376d1c2950885cae8424634eecfb8",
+    "mtime": 1792510994.8356855,
+    "seen": 1792511435.2043843,
+    "ast_hash": "62b18d9310aae47d64c92c12b0b99595",
     "semantic_hash": ""
   },
   "src/ui/UIManager.ts": {
@@ -201,6 +201,12 @@
     "mtime": 1792505032.792267,
     "seen": 1792509659.1969845,
     "ast_hash": "f088fcef0d30e154db5a96d5597ca6a5",
+    "semantic_hash": ""
+  },
+  "src/engine/PlayerController.ts": {
+    "mtime": 1792511055.7865415,
+    "seen": 1792511435.2043843,
+    "ast_hash": "9347b3320c49af495d2779e811f2e6d9",
     "semantic_hash": ""
   }
 }
