@@ -1,0 +1,193 @@
+:root {
+  --bg-gradient: radial-gradient(circle at 50% 30%, #1e1035 0%, #0c0818 100%);
+  --panel-bg: rgba(22, 16, 42, 0.75);
+  --panel-border: rgba(255, 105, 180, 0.25);
+  --accent-pink: #ff2a85;
+  --accent-gold: #ffb703;
+  --accent-cyan: #00f0ff;
+  --text-primary: #ffffff;
+  --text-secondary: #c0b3d8;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #080612;
+  font-family: var(--font-family);
+  color: var(--text-primary);
+}
+
+#game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Three.js Canvas Wrapper:
+   Resizes gracefully preserving orthographic aspect ratio without CSS pixel stretching
+*/
+#canvas-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  background: var(--bg-gradient);
+}
+
+#game-canvas {
+  display: block;
+  /* Crisp rendering without bilinear blur stretching */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  outline: none;
+}
+
+/* HTML/CSS Overlay UI Layer */
+#ui-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none; /* Allows 3D scene clicks to pass through */
+  padding: 16px;
+}
+
+/* Top Stats Bar */
+#top-bar {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  pointer-events: auto;
+}
+
+.stats-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--panel-border);
+  border-radius: 9999px;
+  padding: 8px 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.stats-badge:hover {
+  transform: translateY(-2px);
+}
+
+.stats-badge .icon {
+  font-size: 1.25rem;
+}
+
+.stats-badge .value {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+#cash-display .value {
+  color: var(--accent-gold);
+}
+
+#charm-display .value {
+  color: var(--accent-pink);
+}
+
+#reputation-display .value {
+  color: var(--accent-cyan);
+}
+
+/* Interaction Layer / Dynamic Floating Pool Root */
+#interaction-layer {
+  flex: 1;
+  position: relative;
+  pointer-events: none;
+}
+
+#floating-text-pool-root {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.floating-text-item {
+  position: absolute;
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+  transition: none;
+}
+
+/* Bottom Actions Bar */
+#bottom-bar {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+  padding-bottom: 8px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(255, 42, 133, 0.85) 0%, rgba(138, 43, 226, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 12px 22px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(255, 42, 133, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.action-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(255, 42, 133, 0.45);
+}
+
+.action-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.btn-icon {
+  font-size: 1.25rem;
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0" />
+    <title>Get Girls Simulator - 2.5D Tycoon</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="game-container">
+      <!-- Three.js Canvas Container (Maintains aspect ratio without stretching) -->
+      <div id="canvas-wrapper">
+        <canvas id="game-canvas"></canvas>
+      </div>
+
+      <!-- HTML/CSS Overlay UI Layer -->
+      <div id="ui-overlay">
+        <header id="top-bar">
+          <div class="stats-badge" id="cash-display">
+            <span class="icon">💰</span>
+            <span class="value" id="cash-val">$0</span>
+          </div>
+          <div class="stats-badge" id="charm-display">
+            <span class="icon">✨</span>
+            <span class="value" id="charm-val">0 Charm</span>
+          </div>
+          <div class="stats-badge" id="reputation-display">
+            <span class="icon">👑</span>
+            <span class="value" id="rep-val">Lvl 1 Tycoon</span>
+          </div>
+        </header>
+
+        <main id="interaction-layer">
+          <!-- Dynamic floating UI and dialogue toasts (handled via object pooling) -->
+          <div id="floating-text-pool-root"></div>
+        </main>
+
+        <footer id="bottom-bar">
+          <button id="btn-upgrade-charm" class="action-btn">
+            <span class="btn-icon">⚡</span>
+            <span class="btn-label">Upgrade Charm</span>
+          </button>
+          <button id="btn-recruit" class="action-btn">
+            <span class="btn-icon">💃</span>
+            <span class="btn-label">Expand Club</span>
+          </button>
+          <button id="btn-passive-income" class="action-btn">
+            <span class="btn-icon">📈</span>
+            <span class="btn-label">Collect Revenue</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

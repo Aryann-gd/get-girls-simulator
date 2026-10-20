@@ -1,0 +1,32 @@
+{
+  "package.json": {
+    "mtime": 1792502697.9892187,
+    "seen": 1792503072.8828626,
+    "ast_hash": "f36a56580160f2ff213ee33099db0cdc",
+    "semantic_hash": "f36a56580160f2ff213ee33099db0cdc"
+  },
+  "src/main.ts": {
+    "mtime": 1792502810.6515524,
+    "seen": 1792503072.8828626,
+    "ast_hash": "e75d499b3d32c20c91d228897f0b8f28",
+    "semantic_hash": "e75d499b3d32c20c91d228897f0b8f28"
+  },
+  "src/vite-env.d.ts": {
+    "mtime": 1792502761.8542953,
+    "seen": 1792503072.8828626,
+    "ast_hash": "0352474ba2918efe13895edbc3780d94",
+    "semantic_hash": "0352474ba2918efe13895edbc3780d94"
+  },
+  "tsconfig.json": {
+    "mtime": 1792502709.0346227,
+    "seen": 1792503072.8828626,
+    "ast_hash": "8ffb9195352c8049683122659598a0b1",
+    "semantic_hash": "8ffb9195352c8049683122659598a0b1"
+  },
+  "vite.config.ts": {
+    "mtime": 1792502722.7736247,
+    "seen": 1792503072.8828626,
+    "ast_hash": "6b9b6f4770ec5179fdedef283fa93c90",
+    "semantic_hash": "6b9b6f4770ec5179fdedef283fa93c90"
+  }
+}
