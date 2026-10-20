@@ -28,5 +28,83 @@
     "seen": 1792503072.8828626,
     "ast_hash": "6b9b6f4770ec5179fdedef283fa93c90",
     "semantic_hash": "6b9b6f4770ec5179fdedef283fa93c90"
+  },
+  "create_girl_texture.py": {
+    "mtime": 1792506185.9398115,
+    "seen": 1792506644.146585,
+    "ast_hash": "a1f5bdeeda105f8e869d564fb0a854d7",
+    "semantic_hash": ""
+  },
+  "create_texture.py": {
+    "mtime": 1792505020.2957747,
+    "seen": 1792506644.146585,
+    "ast_hash": "35ff96c9eabeb8f5db4b8dd7b757b307",
+    "semantic_hash": ""
+  },
+  "generate_all_assets.py": {
+    "mtime": 1792506244.001297,
+    "seen": 1792506644.146585,
+    "ast_hash": "293bc1e10a3a748f7bb36b1619abd9cf",
+    "semantic_hash": ""
+  },
+  ".agent/rules.md": {
+    "mtime": 1792502408.2191994,
+    "seen": 1792506644.146585,
+    "ast_hash": "f8ff346655028601a8b16c273c528439",
+    "semantic_hash": ""
+  },
+  "assetgeneration.md": {
+    "mtime": 1792501976.7725055,
+    "seen": 1792506644.146585,
+    "ast_hash": "4287bfe7cba8d9a187ac9aa7863b6fb4",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1792502738.4669814,
+    "seen": 1792506644.146585,
+    "ast_hash": "9f652a7469bd6cf39b1b0cccd0770374",
+    "semantic_hash": ""
+  },
+  "mechanics.md": {
+    "mtime": 1792502011.3920617,
+    "seen": 1792506644.146585,
+    "ast_hash": "ef6208770a2460367cd4b902bba04913",
+    "semantic_hash": ""
+  },
+  "monetization.md": {
+    "mtime": 1792502056.8576148,
+    "seen": 1792506644.146585,
+    "ast_hash": "c0f2b23d7ff3a63ffebd482f5f21aee8",
+    "semantic_hash": ""
+  },
+  "prd.md": {
+    "mtime": 1792501926.2974124,
+    "seen": 1792506644.146585,
+    "ast_hash": "bfbe64ff68f2c1cef33991eb74bd105b",
+    "semantic_hash": ""
+  },
+  "assets_showcase.png": {
+    "mtime": 1792506273.3432736,
+    "seen": 1792506644.146585,
+    "ast_hash": "516897d0957e247d736cf4b326276d55",
+    "semantic_hash": ""
+  },
+  "girl_texture.png": {
+    "mtime": 1792506207.147337,
+    "seen": 1792506644.146585,
+    "ast_hash": "7f8a1b2ebdd0c682b042153a5ff685c8",
+    "semantic_hash": ""
+  },
+  "player_preview.png": {
+    "mtime": 1792506269.7396486,
+    "seen": 1792506644.146585,
+    "ast_hash": "466621848b3f4652606603680e9675cc",
+    "semantic_hash": ""
+  },
+  "player_texture.png": {
+    "mtime": 1792505032.792267,
+    "seen": 1792506644.146585,
+    "ast_hash": "f088fcef0d30e154db5a96d5597ca6a5",
+    "semantic_hash": ""
   }
 }
