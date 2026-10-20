@@ -6,10 +6,10 @@
     "semantic_hash": "f36a56580160f2ff213ee33099db0cdc"
   },
   "src/main.ts": {
-    "mtime": 1792502810.6515524,
-    "seen": 1792503072.8828626,
-    "ast_hash": "e75d499b3d32c20c91d228897f0b8f28",
-    "semantic_hash": "e75d499b3d32c20c91d228897f0b8f28"
+    "mtime": 1792509307.005272,
+    "seen": 1792509659.1929843,
+    "ast_hash": "2ecd7a7b226a786a227675456ce0dd46",
+    "semantic_hash": ""
   },
   "src/vite-env.d.ts": {
     "mtime": 1792502761.8542953,
@@ -29,24 +29,6 @@
     "ast_hash": "6b9b6f4770ec5179fdedef283fa93c90",
     "semantic_hash": "6b9b6f4770ec5179fdedef283fa93c90"
   },
-  "create_girl_texture.py": {
-    "mtime": 1792506185.9398115,
-    "seen": 1792506644.146585,
-    "ast_hash": "a1f5bdeeda105f8e869d564fb0a854d7",
-    "semantic_hash": ""
-  },
-  "create_texture.py": {
-    "mtime": 1792505020.2957747,
-    "seen": 1792506644.146585,
-    "ast_hash": "35ff96c9eabeb8f5db4b8dd7b757b307",
-    "semantic_hash": ""
-  },
-  "generate_all_assets.py": {
-    "mtime": 1792506244.001297,
-    "seen": 1792506644.146585,
-    "ast_hash": "293bc1e10a3a748f7bb36b1619abd9cf",
-    "semantic_hash": ""
-  },
   ".agent/rules.md": {
     "mtime": 1792502408.2191994,
     "seen": 1792506644.146585,
@@ -60,9 +42,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1792502738.4669814,
-    "seen": 1792506644.146585,
-    "ast_hash": "9f652a7469bd6cf39b1b0cccd0770374",
+    "mtime": 1792508699.5786436,
+    "seen": 1792509659.1949842,
+    "ast_hash": "fcee5f60741c911f516aa56a2683b087",
     "semantic_hash": ""
   },
   "mechanics.md": {
@@ -83,27 +65,141 @@
     "ast_hash": "bfbe64ff68f2c1cef33991eb74bd105b",
     "semantic_hash": ""
   },
-  "assets_showcase.png": {
-    "mtime": 1792506273.3432736,
-    "seen": 1792506644.146585,
-    "ast_hash": "516897d0957e247d736cf4b326276d55",
-    "semantic_hash": ""
-  },
   "girl_texture.png": {
     "mtime": 1792506207.147337,
     "seen": 1792506644.146585,
     "ast_hash": "7f8a1b2ebdd0c682b042153a5ff685c8",
     "semantic_hash": ""
   },
-  "player_preview.png": {
-    "mtime": 1792506269.7396486,
-    "seen": 1792506644.146585,
-    "ast_hash": "466621848b3f4652606603680e9675cc",
-    "semantic_hash": ""
-  },
   "player_texture.png": {
     "mtime": 1792505032.792267,
     "seen": 1792506644.146585,
+    "ast_hash": "f088fcef0d30e154db5a96d5597ca6a5",
+    "semantic_hash": ""
+  },
+  "Blender-mcp/mcp_server.py": {
+    "mtime": 1792506482.3262153,
+    "seen": 1792509659.191726,
+    "ast_hash": "479755894700792ee8d03af5bb698848",
+    "semantic_hash": ""
+  },
+  "scripts/generate_all_assets.py": {
+    "mtime": 1792506244.001297,
+    "seen": 1792509659.1929843,
+    "ast_hash": "293bc1e10a3a748f7bb36b1619abd9cf",
+    "semantic_hash": ""
+  },
+  "src/engine/EntityManager.ts": {
+    "mtime": 1792508578.6590564,
+    "seen": 1792509659.1929843,
+    "ast_hash": "6e2cd8231a2cc203547b8ae556145daa",
+    "semantic_hash": ""
+  },
+  "src/engine/InputManager.ts": {
+    "mtime": 1792508525.8248632,
+    "seen": 1792509659.1929843,
+    "ast_hash": "4d1108799d8774ecef4c71ff2e044a76",
+    "semantic_hash": ""
+  },
+  "src/engine/ResizeManager.ts": {
+    "mtime": 1792508502.604425,
+    "seen": 1792509659.1929843,
+    "ast_hash": "81b39656c7c4a78f105ef9cc8ae42f03",
+    "semantic_hash": ""
+  },
+  "src/engine/SceneManager.ts": {
+    "mtime": 1792508608.7893243,
+    "seen": 1792509659.1929843,
+    "ast_hash": "3a65fd48bf2b00bce8e9db95d73233ed",
+    "semantic_hash": ""
+  },
+  "src/sdk/CrazyGamesManager.ts": {
+    "mtime": 1792508457.3646362,
+    "seen": 1792509659.1929843,
+    "ast_hash": "ea1e8ceee054f5f0bbf31341b841b057",
+    "semantic_hash": ""
+  },
+  "src/systems/AttractionSystem.ts": {
+    "mtime": 1792508418.985657,
+    "seen": 1792509659.1929843,
+    "ast_hash": "61ae0f3d4c1ee7daf09b346bc5e41ee8",
+    "semantic_hash": ""
+  },
+  "src/systems/EconomyManager.ts": {
+    "mtime": 1792508396.5099506,
+    "seen": 1792509659.1929843,
+    "ast_hash": "7090be00af3b2770077c8887b111f130",
+    "semantic_hash": ""
+  },
+  "src/systems/GameManager.ts": {
+    "mtime": 1792509435.066081,
+    "seen": 1792509659.1929843,
+    "ast_hash": "27c174031b2ba504028de516cdfa8839",
+    "semantic_hash": ""
+  },
+  "src/systems/SaveSystem.ts": {
+    "mtime": 1792508437.369558,
+    "seen": 1792509659.1929843,
+    "ast_hash": "110f87564dbeeee6ff6b8bc5f030a4bd",
+    "semantic_hash": ""
+  },
+  "src/types/game.ts": {
+    "mtime": 1792508361.070127,
+    "seen": 1792509659.1929843,
+    "ast_hash": "af1376d1c2950885cae8424634eecfb8",
+    "semantic_hash": ""
+  },
+  "src/ui/UIManager.ts": {
+    "mtime": 1792508656.2648315,
+    "seen": 1792509659.1929843,
+    "ast_hash": "1d38725760fe81e266bef503589501e1",
+    "semantic_hash": ""
+  },
+  "Blender-mcp/.vscode/copilot-instructions.md": {
+    "mtime": 1792506482.308326,
+    "seen": 1792509659.1949842,
+    "ast_hash": "3dfe2324acdbbf4190caaf934913351b",
+    "semantic_hash": ""
+  },
+  "Blender-mcp/README.md": {
+    "mtime": 1792506482.3262153,
+    "seen": 1792509659.1949842,
+    "ast_hash": "81867c1bbc24ec27a8098c4c00029d7c",
+    "semantic_hash": ""
+  },
+  "Blender-mcp/project-instructions.md": {
+    "mtime": 1792506482.3262153,
+    "seen": 1792509659.1949842,
+    "ast_hash": "30c18fb98ff5fb0cd6add6949fdf9be6",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1792506973.54616,
+    "seen": 1792509659.1949842,
+    "ast_hash": "5c1921e603146b4c4e25127189d6a5e6",
+    "semantic_hash": ""
+  },
+  "docs/previews/assets_showcase.png": {
+    "mtime": 1792506273.3432736,
+    "seen": 1792509659.1969845,
+    "ast_hash": "516897d0957e247d736cf4b326276d55",
+    "semantic_hash": ""
+  },
+  "docs/previews/player_preview.png": {
+    "mtime": 1792507876.076802,
+    "seen": 1792509659.1969845,
+    "ast_hash": "8d01beba29503e7761161c28f0370e60",
+    "semantic_hash": ""
+  },
+  "public/assets/textures/girl_texture.png": {
+    "mtime": 1792506207.147337,
+    "seen": 1792509659.1969845,
+    "ast_hash": "7f8a1b2ebdd0c682b042153a5ff685c8",
+    "semantic_hash": ""
+  },
+  "public/assets/textures/player_texture.png": {
+    "mtime": 1792505032.792267,
+    "seen": 1792509659.1969845,
     "ast_hash": "f088fcef0d30e154db5a96d5597ca6a5",
     "semantic_hash": ""
   }

@@ -2,9 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0" />
     <title>Get Girls Simulator - 2.5D Tycoon</title>
+    <!-- CrazyGames SDK v2 -->
+    <script src="https://sdk.crazygames.com/crazygames-sdk-v2.js"></script>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
@@ -16,40 +17,93 @@
 
       <!-- HTML/CSS Overlay UI Layer -->
       <div id="ui-overlay">
+        <!-- Top Bar: Cash, Rank, Audio Controls -->
         <header id="top-bar">
-          <div class="stats-badge" id="cash-display">
+          <div class="stats-badge" id="cash-badge">
             <span class="icon">💰</span>
             <span class="value" id="cash-val">$0</span>
           </div>
-          <div class="stats-badge" id="charm-display">
-            <span class="icon">✨</span>
-            <span class="value" id="charm-val">0 Charm</span>
-          </div>
-          <div class="stats-badge" id="reputation-display">
+
+          <div class="stats-badge" id="rank-badge">
             <span class="icon">👑</span>
-            <span class="value" id="rep-val">Lvl 1 Tycoon</span>
+            <span class="value" id="rank-val">Lvl 1 Tycoon</span>
           </div>
+
+          <button id="btn-mute-audio" class="control-btn" title="Toggle Sound">
+            🔊 Audio: ON
+          </button>
         </header>
 
+        <!-- Stats Bar: Looks, Rizz, Energy -->
+        <div id="stats-bar">
+          <div class="stat-pill looks">
+            <span class="pill-icon">💪</span>
+            <span class="pill-label">Looks:</span>
+            <span class="pill-val" id="looks-val">5/100</span>
+          </div>
+
+          <div class="stat-pill rizz">
+            <span class="pill-icon">✨</span>
+            <span class="pill-label">Rizz:</span>
+            <span class="pill-val" id="rizz-val">5/100</span>
+          </div>
+
+          <div class="energy-container">
+            <div class="energy-label">
+              <span>⚡ Energy</span>
+              <span id="energy-val">100/100</span>
+            </div>
+            <div class="energy-bar-bg">
+              <div id="energy-bar-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ad Rewards Bar (CrazyGames Compliant Monetization) -->
+        <div id="ad-bar">
+          <button id="btn-ad-double-cash" class="ad-btn" title="Watch Ad for 50% Cash Bonus">
+            🎬 +50% Cash
+          </button>
+          <button id="btn-ad-rizz" class="ad-btn" title="Watch Ad for +10 Rizz">
+            🔥 Instant +10 Rizz
+          </button>
+          <button id="btn-ad-energy" class="ad-btn" title="Watch Ad for Instant Energy">
+            ⚡ Full Energy
+          </button>
+        </div>
+
+        <!-- Dynamic Interaction Layer & Floating Text Pool -->
         <main id="interaction-layer">
-          <!-- Dynamic floating UI and dialogue toasts (handled via object pooling) -->
           <div id="floating-text-pool-root"></div>
         </main>
 
+        <!-- Save Indicator Toast -->
+        <div id="save-toast" class="toast">💾 Game Saved</div>
+
+        <!-- Bottom Primary Action Bar -->
         <footer id="bottom-bar">
-          <button id="btn-upgrade-charm" class="action-btn">
-            <span class="btn-icon">⚡</span>
-            <span class="btn-label">Upgrade Charm</span>
+          <button id="btn-grind-workout" class="action-btn primary">
+            <span class="btn-icon">🏋️</span>
+            <span class="btn-label">Workout Grind</span>
           </button>
-          <button id="btn-recruit" class="action-btn">
-            <span class="btn-icon">💃</span>
-            <span class="btn-label">Expand Club</span>
-          </button>
-          <button id="btn-passive-income" class="action-btn">
-            <span class="btn-icon">📈</span>
-            <span class="btn-label">Collect Revenue</span>
+          <button id="btn-open-shop" class="action-btn secondary">
+            <span class="btn-icon">🛍️</span>
+            <span class="btn-label">Upgrade Shop</span>
           </button>
         </footer>
+
+        <!-- Upgrade Shop Modal -->
+        <div id="shop-modal" class="modal-backdrop">
+          <div class="modal-dialog">
+            <div class="modal-header">
+              <h3>👔 Tycoon Wardrobe & Upgrades</h3>
+              <button id="btn-close-shop" class="btn-close">✕</button>
+            </div>
+            <div class="modal-body" id="shop-items-container">
+              <!-- Dynamically populated via UIManager -->
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

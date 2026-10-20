@@ -1,14 +1,18 @@
 {
-  "0": ".init",
+  "0": "GameManager",
   "1": "compilerOptions",
-  "2": "CrazyGamesSDKManager",
+  "2": "mcp_server.py",
   "3": "package.json",
   "4": "generate_all_assets.py",
-  "5": "create_girl_texture.py",
+  "5": "UIManager",
   "6": "Immutable Rules & Architectural Guidelines",
   "7": "vite-env.d.ts",
   "8": "assetgeneration.md",
-  "9": "mechanics.md",
-  "10": "monetization.md",
-  "11": "prd.md"
+  "9": "EntityManager",
+  "10": "CrazyGamesManager.ts",
+  "11": "IPlayerState",
+  "12": "Get Girls Simulator 🚀",
+  "13": "Blender MCP",
+  "14": "Blender 3.1 MCP Project Instructions",
+  "15": "copilot-instructions.md"
 }
